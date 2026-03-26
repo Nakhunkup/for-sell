@@ -1,0 +1,40 @@
+services:
+  client:
+    build: 
+      context: ./client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+    networks:
+      - cmarket
+
+  server:
+    build: 
+      context: ./server
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server/data:/app/data
+      - ./server/uploads:/app/uploads
+      - ./.env:/app/.env
+    env_file:
+      - .env
+    networks:
+      - cmarket
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - client
+      - server
+    networks:
+      - cmarket
+
+networks:
+  cmarket:
+    driver: bridge
